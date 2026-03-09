@@ -75,10 +75,12 @@ export default function Home() {
   const [view, setView] = useState<"upload" | "history">("upload");
   const [history, setHistory] = useState<VideoProcessingResponse[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   // Check authentication
   useEffect(() => {
+    setMounted(true);
     if (!isAuthenticated()) {
       router.push("/login");
     }
@@ -127,6 +129,7 @@ export default function Home() {
   const handleShowHistory = () => {
     setView("history");
     fetchHistory();
+    scrollToUpload();
   };
 
   const handleSelectHistoryVideo = (video: VideoProcessingResponse) => {
@@ -205,21 +208,34 @@ export default function Home() {
               >
                 Archive
               </button>
-              <button
-                onClick={handleLogout}
-                className="hover:text-red-400 transition-colors flex items-center space-x-1"
-              >
-                <LogOut size={14} />
-                <span>Logout</span>
-              </button>
               <a href="#features" className="hover:text-white transition-colors">Features</a>
             </div>
 
             <div className="flex items-center space-x-4">
-              <a href="#" className="hidden md:block text-sm font-medium text-white/60 hover:text-white">Sign In</a>
-              <button onClick={scrollToUpload} className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white text-sm font-bold rounded-xl hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:scale-105 transition-all">
-                Try for Free
-              </button>
+              {mounted && isAuthenticated() ? (
+                <div className="flex items-center space-x-4">
+                  <div className="hidden md:flex items-center space-x-2 text-sm font-medium text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Online</span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="hover:text-red-400 text-white/60 text-sm font-medium transition-colors flex items-center space-x-1"
+                  >
+                    <LogOut size={14} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              ) : mounted ? (
+                <>
+                  <a href="/login" className="hidden md:block text-sm font-medium text-white/60 hover:text-white">Sign In</a>
+                  <button onClick={scrollToUpload} className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white text-sm font-bold rounded-xl hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:scale-105 transition-all">
+                    Try for Free
+                  </button>
+                </>
+              ) : (
+                <div className="w-24 h-10 animate-pulse bg-white/5 rounded-xl"></div>
+              )}
             </div>
           </div>
         </nav>
